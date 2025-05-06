@@ -16,19 +16,25 @@ const server = serve({
     // ** API endpoints ** (Bun v1.2.3+ required)
     "/api/users": {
       async GET(req) {
-        const users = await db.query(`SELECT * FROM users`);
+        const users = db.query(`SELECT * FROM users`);
         return Response.json(users);
       },
       async POST(req) {
-        const { name, email } = await req.json();
-        const [user] =
-          await db.query(`INSERT INTO users (name, email) VALUES (${name}, ${email})`);
-        return Response.json(user);
+        // console.log(req);
+        // const { name, email } = await req.json();
+        // console.log(name, email);
+        const name = "test";
+        const email = "test";
+        //INSERT INTO users (name, email) VALUES ('Jane Doe', 'jane.doe@example.com');
+        db.run("INSERT INTO users (name, email) VALUES (?, ?)", [name, email]);
+        // const [user] = db.query("INSERT INTO users (name, email) VALUES ($name, $email)");
+        return Response.json({ message: "User created" });
+        // return Response.json(user);
       },
     },
     "/api/users/:id": async req => {
       const { id } = req.params;
-      const [user] = await db.query(`SELECT * FROM users WHERE id = ${id}`);
+      const [user] = db.query(`SELECT * FROM users WHERE id = ${id}`);
       return Response.json(user);
     },
   },
