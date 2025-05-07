@@ -3,6 +3,7 @@ import { Database } from "bun:sqlite";
 import dashboard from "./dashboard.html";
 import homepage from "./index.html";
 import contact from "./contactme.html";
+import helpDeskDashboard from "./helpdesk_dashboard.html";
 
 const db = new Database("mydb.sqlite");
 
@@ -15,6 +16,8 @@ const server = serve({
     "/dashboard": dashboard,
 
     "/contactus": contact,
+
+    "/helpdesk": helpDeskDashboard,
 
     // ** API endpoints ** (Bun v1.2.3+ required)
     "/api/users": {
