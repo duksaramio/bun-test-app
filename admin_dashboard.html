@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Help Desk - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* bg-gray-100 */
+        }
+        .nav-link-active {
+            background-color: #1e1b4b; /* bg-indigo-900 */
+            color: white;
+        }
+        .nav-link {
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #e5e7eb; /* bg-gray-200 */
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #9ca3af; /* bg-gray-400 */
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* bg-gray-500 */
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.65);
+        }
+        .modal-content {
+            background-color: #ffffff;
+            margin: 5% auto;
+            padding: 1.5rem 2rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            width: 90%;
+            max-width: 600px; /* Default, can be overridden for wider modals */
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+        }
+        .modal-content.modal-lg {
+            max-width: 800px;
+        }
+        .modal-close-button:hover {
+            color: #ef4444; /* red-500 */
+        }
+        .admin-form-label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            color: #374151; /* text-gray-700 */
+        }
+        .admin-form-input, .admin-form-select, .admin-form-textarea {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db; /* border-gray-300 */
+            border-radius: 0.375rem; /* rounded-md */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        .admin-form-input:focus, .admin-form-select:focus, .admin-form-textarea:focus {
+            outline: none;
+            border-color: #4338ca; /* focus:border-indigo-700 */
+            box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.3); /* focus:ring-indigo-700 with opacity */
+        }
+        .tab-button {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            color: #4b5563; /* text-gray-600 */
+        }
+        .tab-button-active {
+            border-color: #4338ca; /* border-indigo-700 */
+            color: #4338ca; /* text-indigo-700 */
+            font-weight: 600;
+        }
+        .tab-pane { display: none; }
+        .tab-pane-active { display: block; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                     <svg class="h-8 w-8 text-indigo-800 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                    </svg>
+                    <span class="font-bold text-xl text-gray-800">IT Help Desk <span class="text-indigo-800 font-semibold">Admin Portal</span></span>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-gray-600 mr-4">Welcome, <strong id="adminUserName" class="font-medium">Admin</strong>!</span>
+                    <button class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-indigo-700 shadow-lg">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-center flex-wrap space-x-1 sm:space-x-2">
+                <button data-target="adminHome" class="nav-link nav-link-active py-3 px-2 sm:px-3 text-xs sm:text-sm font-medium text-white hover:bg-indigo-800 rounded-t-md">Home</button>
+                <button data-target="userManagement" class="nav-link py-3 px-2 sm:px-3 text-xs sm:text-sm font-medium text-white hover:bg-indigo-800 rounded-t-md">Users</button>
+                <button data-target="teamManagement" class="nav-link py-3 px-2 sm:px-3 text-xs sm:text-sm font-medium text-white hover:bg-indigo-800 rounded-t-md">Teams</button>
+                <button data-target="ticketSettings" class="nav-link py-3 px-2 sm:px-3 text-xs sm:text-sm font-medium text-white hover:bg-indigo-800 rounded-t-md">Ticket Settings</button>
+                <button data-target="kbAdmin" class="nav-link py-3 px-2 sm:px-3 text-xs sm:text-sm font-medium text-white hover:bg-indigo-800 rounded-t-md">KB Admin</button>
+                <button data-target="auditLogs" class="nav-link py-3 px-2 sm:px-3 text-xs sm:text-sm font-medium text-white hover:bg-indigo-800 rounded-t-md">Audit Logs</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
+        <section id="adminHome" class="content-section bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">System Overview</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-blue-50 p-5 rounded-lg shadow"><h3 class="text-md font-medium text-blue-700">Total Tickets</h3><p class="text-3xl font-bold text-blue-600 mt-1" id="statTotalTickets">0</p></div>
+                <div class="bg-green-50 p-5 rounded-lg shadow"><h3 class="text-md font-medium text-green-700">Open Tickets</h3><p class="text-3xl font-bold text-green-600 mt-1" id="statOpenSystemTickets">0</p></div>
+                <div class="bg-purple-50 p-5 rounded-lg shadow"><h3 class="text-md font-medium text-purple-700">Total Users</h3><p class="text-3xl font-bold text-purple-600 mt-1" id="statTotalUsers">0</p></div>
+                <div class="bg-yellow-50 p-5 rounded-lg shadow"><h3 class="text-md font-medium text-yellow-700">Active Agents</h3><p class="text-3xl font-bold text-yellow-600 mt-1" id="statActiveAgents">0</p></div>
+                <div class="bg-pink-50 p-5 rounded-lg shadow"><h3 class="text-md font-medium text-pink-700">Teams</h3><p class="text-3xl font-bold text-pink-600 mt-1" id="statTotalTeams">0</p></div>
+                <div class="bg-indigo-50 p-5 rounded-lg shadow"><h3 class="text-md font-medium text-indigo-700">KB Articles</h3><p class="text-3xl font-bold text-indigo-600 mt-1" id="statKbArticles">0</p></div>
+                 <div class="bg-red-50 p-5 rounded-lg shadow"><h3 class="text-md font-medium text-red-700">Tickets > 7 Days Old</h3><p class="text-3xl font-bold text-red-600 mt-1" id="statOldTickets">0</p></div>
+                <div class="bg-gray-50 p-5 rounded-lg shadow"><h3 class="text-md font-medium text-gray-700">Audit Log Entries</h3><p class="text-3xl font-bold text-gray-600 mt-1" id="statAuditLogsCount">0</p></div>
+            </div>
+        </section>
+
+        <section id="userManagement" class="content-section hidden bg-white p-6 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800">User Management</h2>
+                <button onclick="openAdminModal('user', null)" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md text-sm">Add New User</button>
+            </div>
+            <div id="userListContainer" class="overflow-x-auto custom-scrollbar"></div>
+            <p id="noUsersMessage" class="text-center text-gray-500 py-8 hidden">No users found.</p>
+        </section>
+
+        <section id="teamManagement" class="content-section hidden bg-white p-6 rounded-lg shadow-lg">
+             <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800">Team Management</h2>
+                <button onclick="openAdminModal('team', null)" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md text-sm">Add New Team</button>
+            </div>
+            <div id="teamListContainer" class="overflow-x-auto custom-scrollbar"></div>
+            <p id="noTeamsMessage" class="text-center text-gray-500 py-8 hidden">No teams found.</p>
+        </section>
+
+        <section id="ticketSettings" class="content-section hidden bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Ticket System Settings</h2>
+            <div class="mb-6 border-b border-gray-200">
+                <nav class="flex space-x-4" aria-label="Tabs">
+                    <button onclick="showTicketSettingsTab('categories')" class="tab-button tab-button-active" data-tab="categories">Categories</button>
+                    <button onclick="showTicketSettingsTab('statuses')" class="tab-button" data-tab="statuses">Statuses</button>
+                    <button onclick="showTicketSettingsTab('priorities')" class="tab-button" data-tab="priorities">Priorities</button>
+                    <button onclick="showTicketSettingsTab('slas')" class="tab-button" data-tab="slas">SLA Policies</button>
+                </nav>
+            </div>
+
+            <div id="settingsCategories" class="tab-pane tab-pane-active">
+                <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-medium">Ticket Categories</h3><button onclick="openAdminModal('category', null)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded-md text-xs">Add Category</button></div>
+                <div id="categoryListContainer"></div> <p id="noCategoriesMessage" class="text-sm text-gray-500 hidden">No categories defined.</p>
+            </div>
+            <div id="settingsStatuses" class="tab-pane">
+                <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-medium">Ticket Statuses</h3><button onclick="openAdminModal('status', null)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded-md text-xs">Add Status</button></div>
+                <div id="statusListContainer"></div> <p id="noStatusesMessage" class="text-sm text-gray-500 hidden">No statuses defined.</p>
+            </div>
+            <div id="settingsPriorities" class="tab-pane">
+                <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-medium">Ticket Priorities</h3><button onclick="openAdminModal('priority', null)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded-md text-xs">Add Priority</button></div>
+                <div id="priorityListContainer"></div> <p id="noPrioritiesMessage" class="text-sm text-gray-500 hidden">No priorities defined.</p>
+            </div>
+            <div id="settingsSlas" class="tab-pane">
+                <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-medium">SLA Policies</h3><button onclick="openAdminModal('sla', null)" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded-md text-xs">Add SLA Policy</button></div>
+                <div id="slaListContainer"></div> <p id="noSlasMessage" class="text-sm text-gray-500 hidden">No SLA Policies defined.</p>
+            </div>
+        </section>
+
+        <section id="kbAdmin" class="content-section hidden bg-white p-6 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800">Knowledge Base Management</h2>
+                 <button onclick="openAdminModal('kbArticle', null)" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md text-sm">Add New Article</button>
+            </div>
+            <input type="search" id="kbSearchAdmin" class="w-full mb-4 p-2 border rounded-md" placeholder="Search articles by title or content...">
+            <div id="kbAdminListContainer" class="overflow-x-auto custom-scrollbar"></div>
+            <p id="noKbAdminMessage" class="text-center text-gray-500 py-8 hidden">No knowledge base articles found.</p>
+        </section>
+
+        <section id="auditLogs" class="content-section hidden bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Audit Logs</h2>
+            <div id="auditLogContainer" class="overflow-x-auto custom-scrollbar max-h-[70vh]"></div>
+            <p id="noAuditLogsMessage" class="text-center text-gray-500 py-8 hidden">No audit logs available.</p>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center p-4 mt-auto">
+        <p class="text-sm">&copy; <span id="currentYearAdmin"></span> Your IT Department - Admin Portal. All rights reserved.</p>
+    </footer>
+
+    <div id="adminModal" class="modal">
+        <div id="adminModalContent" class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
+                <h3 id="adminModalTitle" class="text-xl font-semibold text-gray-800">Manage Item</h3>
+                <button id="adminModalCloseButton" class="text-gray-400 hover:text-gray-600 modal-close-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div id="adminModalBody" class="text-gray-700 space-y-4 max-h-[65vh] overflow-y-auto custom-scrollbar pr-2">
+                </div>
+            <div id="adminModalFooter" class="mt-6 pt-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button id="adminModalCancelButton" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md text-sm">Cancel</button>
+                <button id="adminModalSaveButton" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md text-sm">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Mock Data (Extending from previous dashboards) ---
+        const mockAdminUser = { userId: 1, fullName: "Ada Min", email: "admin@example.com", role_id: 3 }; // Admin Role
+        const mockRoles = [
+            { role_id: 1, role_name: 'End-User' },
+            { role_id: 2, role_name: 'Agent' },
+            { role_id: 3, role_name: 'Admin' }
+        ];
+        let mockUsers = [ // Combined users from previous examples + admin
+            mockAdminUser,
+            { userId: 101, username: 'janed', email: 'jane.doe@example.com', password_hash: 'hashed_pw', full_name: 'Jane Doe', role_id: 1, is_active: 1, created_at: '2023-01-10T10:00:00Z' },
+            { userId: 102, username: 'johns', email: 'john.smith@example.com', password_hash: 'hashed_pw', full_name: 'John Smith', role_id: 1, is_active: 1, created_at: '2023-01-15T11:00:00Z' },
+            { userId: 201, username: 'sams', email: 'sam.support@example.com', password_hash: 'hashed_pw', full_name: 'Support Sam', role_id: 2, is_active: 1, created_at: '2023-02-01T09:00:00Z' },
+            { userId: 202, username: 'tinat', email: 'tina.tech@example.com', password_hash: 'hashed_pw', full_name: 'Technician Tina', role_id: 2, is_active: 0, created_at: '2023-02-05T14:00:00Z' },
+        ];
+        let mockTeams = [
+            { team_id: 1, team_name: "Alpha Support", description: "General Tier 1 support.", user_ids: [201] }, // Added user_ids for easier linking
+            { team_id: 2, team_name: "Network Ops", description: "Network infrastructure team.", user_ids: [202] },
+            { team_id: 3, team_name: "Hardware Specialists", description: "Hardware repairs and diagnostics.", user_ids: [] }
+        ];
+        // User_Teams is implicitly handled by user_ids in mockTeams for this mock setup.
+
+        let mockTicketStatuses = [
+            { status_id: 1, status_name: 'Open', description: 'Ticket is open and awaiting action.', is_closing_status: 0 },
+            { status_id: 2, status_name: 'In Progress', description: 'Agent is actively working on the ticket.', is_closing_status: 0 },
+            { status_id: 3, status_name: 'Pending User Reply', description: 'Awaiting information from the requester.', is_closing_status: 0 },
+            { status_id: 4, status_name: 'Resolved', description: 'Issue has been resolved.', is_closing_status: 1 },
+            { status_id: 5, status_name: 'Closed', description: 'Ticket is closed, no further action.', is_closing_status: 1 }
+        ];
+        let mockTicketPriorities = [
+            { priority_id: 1, priority_name: 'Urgent', sort_order: 1 }, { priority_id: 2, priority_name: 'High', sort_order: 2 },
+            { priority_id: 3, priority_name: 'Medium', sort_order: 3 }, { priority_id: 4, priority_name: 'Low', sort_order: 4 }
+        ];
+        let mockTicketCategories = [
+            { category_id: 1, category_name: 'Hardware Issue', description: 'Problems with physical equipment.' },
+            { category_id: 2, category_name: 'Software Problem', description: 'Issues with applications or OS.' },
+            { category_id: 3, category_name: 'Network Access', description: 'Connectivity or access problems.' }
+        ];
+        let mockSlaPolicies = [
+            { sla_policy_id: 1, policy_name: 'Standard Support', response_time_minutes: 240, resolution_time_minutes: 1440, description: 'Standard 4hr response, 24hr resolution.'},
+            { sla_policy_id: 2, policy_name: 'VIP Support', response_time_minutes: 60, resolution_time_minutes: 480, description: 'VIP 1hr response, 8hr resolution.'}
+        ];
+        let mockTickets = [ // Sample tickets for stats
+            { ticket_id: 2024001, subject: 'Laptop screen flickering', status_id: 2, priority_id: 2, category_id: 1, requester_id: 101, assigned_agent_id: 201, created_at: '2024-05-01T10:00:00Z' },
+            { ticket_id: 2024002, subject: 'Cannot access shared drive', status_id: 1, priority_id: 3, category_id: 3, requester_id: 101, created_at: '2024-04-25T09:15:00Z' },
+            { ticket_id: 2024003, subject: 'Request for new software license', status_id: 4, priority_id: 4, category_id: 2, requester_id: 102, resolved_at: '2024-04-28T10:00:00Z', created_at: '2024-04-20T15:00:00Z' },
+        ];
+        let mockKbArticles = [
+            { article_id: 101, title: 'How to Reset Your Password', content: '...', kb_category_id: 1, author_id: 201, status: 'Published', created_at: '2023-03-01T00:00:00Z' },
+            { article_id: 102, title: 'Setting Up VPN Access', content: '...', kb_category_id: 2, author_id: 201, status: 'Draft', created_at: '2023-03-15T00:00:00Z' },
+            { article_id: 103, title: 'Common Printer Errors', content: '...', kb_category_id: 1, author_id: 202, status: 'Published', created_at: '2023-04-01T00:00:00Z' }
+        ];
+         let mockAuditLogs = [
+            { log_id: 1, timestamp: '2024-05-05T10:00:00Z', user_id: 1, action: 'USER_LOGIN', target_entity: 'User', target_id: 1, details: 'Admin logged in.' },
+            { log_id: 2, timestamp: '2024-05-05T10:05:00Z', user_id: 1, action: 'TICKET_STATUS_UPDATE', target_entity: 'Ticket', target_id: 2024001, details: 'Status changed from Open to In Progress.' },
+            { log_id: 3, timestamp: '2024-05-04T14:20:00Z', user_id: 201, action: 'KB_ARTICLE_CREATE', target_entity: 'KB_Article', target_id: 103, details: 'Article "Common Printer Errors" created.' },
+        ];
+
+
+        // --- Utility Functions ---
+        const getRoleName = (id) => mockRoles.find(r => r.role_id === id)?.role_name || 'Unknown Role';
+        const formatDate = (dateString) => dateString ? new Date(dateString).toLocaleString() : 'N/A';
+
+        // --- DOM Elements ---
+        const contentSectionsAdmin = document.querySelectorAll('.content-section');
+        const navLinksAdmin = document.querySelectorAll('nav button[data-target]');
+        const adminModal = document.getElementById('adminModal');
+        const adminModalContent = document.getElementById('adminModalContent');
+        const adminModalTitle = document.getElementById('adminModalTitle');
+        const adminModalBody = document.getElementById('adminModalBody');
+        const adminModalFooter = document.getElementById('adminModalFooter');
+        const adminModalCloseButton = document.getElementById('adminModalCloseButton');
+        const adminModalCancelButton = document.getElementById('adminModalCancelButton');
+        const adminModalSaveButton = document.getElementById('adminModalSaveButton');
+        
+        const kbSearchAdminInput = document.getElementById('kbSearchAdmin');
+
+
+        // --- Initialization ---
+        function initializeAdminDashboard() {
+            document.getElementById('adminUserName').textContent = mockAdminUser.fullName;
+            document.getElementById('currentYearAdmin').textContent = new Date().getFullYear();
+
+            showSectionAdmin('adminHome');
+            updateActiveNavAdmin('adminHome');
+            updateAdminDashboardStats();
+
+            renderUserList();
+            renderTeamList();
+            renderTicketSettings();
+            renderKbAdminList();
+            renderAuditLogs();
+
+
+            navLinksAdmin.forEach(link => {
+                link.addEventListener('click', () => {
+                    const targetId = link.dataset.target;
+                    showSectionAdmin(targetId);
+                    updateActiveNavAdmin(targetId);
+                });
+            });
+            
+            adminModalCloseButton.addEventListener('click', closeAdminModal);
+            adminModalCancelButton.addEventListener('click', closeAdminModal);
+            kbSearchAdminInput?.addEventListener('input', () => renderKbAdminList(kbSearchAdminInput.value.toLowerCase()));
+        }
+
+        // --- Navigation & Section Handling ---
+        function showSectionAdmin(sectionId) {
+            contentSectionsAdmin.forEach(section => section.classList.add('hidden'));
+            document.getElementById(sectionId)?.classList.remove('hidden');
+        }
+
+        function updateActiveNavAdmin(targetId) {
+            navLinksAdmin.forEach(navLink => {
+                navLink.classList.toggle('nav-link-active', navLink.dataset.target === targetId);
+            });
+        }
+        
+        function showTicketSettingsTab(tabName) {
+            document.querySelectorAll('#ticketSettings .tab-pane').forEach(pane => pane.classList.remove('tab-pane-active'));
+            document.getElementById(`settings${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add('tab-pane-active');
+            
+            document.querySelectorAll('#ticketSettings .tab-button').forEach(button => button.classList.remove('tab-button-active'));
+            document.querySelector(`#ticketSettings .tab-button[data-tab="${tabName}"]`).classList.add('tab-button-active');
+        }
+
+
+        // --- Data Rendering ---
+        function updateAdminDashboardStats() {
+            document.getElementById('statTotalTickets').textContent = mockTickets.length;
+            document.getElementById('statOpenSystemTickets').textContent = mockTickets.filter(t => !mockTicketStatuses.find(s => s.status_id === t.status_id)?.is_closing_status).length;
+            document.getElementById('statTotalUsers').textContent = mockUsers.length;
+            document.getElementById('statActiveAgents').textContent = mockUsers.filter(u => u.role_id === 2 && u.is_active).length; // Role 2 is Agent
+            document.getElementById('statTotalTeams').textContent = mockTeams.length;
+            document.getElementById('statKbArticles').textContent = mockKbArticles.filter(a => a.status === 'Published').length;
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            document.getElementById('statOldTickets').textContent = mockTickets.filter(t => new Date(t.created_at) < sevenDaysAgo && !mockTicketStatuses.find(s => s.status_id === t.status_id)?.is_closing_status).length;
+            document.getElementById('statAuditLogsCount').textContent = mockAuditLogs.length;
+        }
+
+        function renderUserList() {
+            const container = document.getElementById('userListContainer');
+            const noItemsMsg = document.getElementById('noUsersMessage');
+            container.innerHTML = '';
+            if (mockUsers.length === 0) { noItemsMsg.classList.remove('hidden'); return; }
+            noItemsMsg.classList.add('hidden');
+
+            const table = document.createElement('table');
+            table.className = 'min-w-full divide-y divide-gray-200 text-sm';
+            table.innerHTML = `
+                <thead class="bg-gray-50"><tr>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">ID</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Full Name</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Email</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Role</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Status</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Actions</th>
+                </tr></thead><tbody class="bg-white divide-y divide-gray-200"></tbody>`;
+            const tbody = table.querySelector('tbody');
+            mockUsers.forEach(user => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td class="px-4 py-2">${user.userId}</td>
+                    <td class="px-4 py-2">${user.full_name}</td>
+                    <td class="px-4 py-2">${user.email}</td>
+                    <td class="px-4 py-2">${getRoleName(user.role_id)}</td>
+                    <td class="px-4 py-2"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${user.is_active ? 'Active' : 'Inactive'}</span></td>
+                    <td class="px-4 py-2"><button onclick="openAdminModal('user', ${user.userId})" class="text-indigo-600 hover:text-indigo-900">Edit</button></td>`;
+            });
+            container.appendChild(table);
+        }
+
+        function renderTeamList() {
+            const container = document.getElementById('teamListContainer');
+            const noItemsMsg = document.getElementById('noTeamsMessage');
+            container.innerHTML = '';
+            if (mockTeams.length === 0) { noItemsMsg.classList.remove('hidden'); return; }
+            noItemsMsg.classList.add('hidden');
+
+            const table = document.createElement('table');
+            table.className = 'min-w-full divide-y divide-gray-200 text-sm';
+            table.innerHTML = `
+                <thead class="bg-gray-50"><tr>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">ID</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Team Name</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Description</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Members</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Actions</th>
+                </tr></thead><tbody class="bg-white divide-y divide-gray-200"></tbody>`;
+            const tbody = table.querySelector('tbody');
+            mockTeams.forEach(team => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td class="px-4 py-2">${team.team_id}</td>
+                    <td class="px-4 py-2">${team.team_name}</td>
+                    <td class="px-4 py-2 max-w-xs truncate" title="${team.description}">${team.description}</td>
+                    <td class="px-4 py-2">${team.user_ids?.length || 0}</td>
+                    <td class="px-4 py-2"><button onclick="openAdminModal('team', ${team.team_id})" class="text-indigo-600 hover:text-indigo-900">Edit</button></td>`;
+            });
+            container.appendChild(table);
+        }
+        
+        function renderTicketSettingsList(items, containerId, noItemsId, typeName, fields) {
+            const container = document.getElementById(containerId);
+            const noItemsMsg = document.getElementById(noItemsId);
+            container.innerHTML = '';
+            if (!items || items.length === 0) { noItemsMsg.classList.remove('hidden'); return; }
+            noItemsMsg.classList.add('hidden');
+
+            const table = document.createElement('table');
+            table.className = 'min-w-full divide-y divide-gray-200 text-sm';
+            let headerHtml = fields.map(f => `<th class="px-3 py-2 text-left font-medium text-gray-500 text-xs">${f.label}</th>`).join('');
+            table.innerHTML = `<thead class="bg-gray-50"><tr>${headerHtml}<th class="px-3 py-2 text-left font-medium text-gray-500 text-xs">Actions</th></tr></thead><tbody class="bg-white divide-y divide-gray-200"></tbody>`;
+            const tbody = table.querySelector('tbody');
+            items.forEach(item => {
+                const row = tbody.insertRow();
+                let cellsHtml = fields.map(f => `<td class="px-3 py-2 whitespace-nowrap">${item[f.key] !== undefined ? item[f.key] : 'N/A'}</td>`).join('');
+                if (typeName === 'status' && item.is_closing_status !== undefined) {
+                     cellsHtml = fields.map(f => {
+                        if (f.key === 'is_closing_status') return `<td class="px-3 py-2">${item.is_closing_status ? 'Yes' : 'No'}</td>`;
+                        return `<td class="px-3 py-2 whitespace-nowrap">${item[f.key] !== undefined ? item[f.key] : 'N/A'}</td>`;
+                     }).join('');
+                }
+                row.innerHTML = `${cellsHtml}<td class="px-3 py-2"><button onclick="openAdminModal('${typeName}', ${item[fields[0].key]})" class="text-indigo-600 hover:text-indigo-900 text-xs">Edit</button></td>`;
+            });
+            container.appendChild(table);
+        }
+
+        function renderTicketSettings() {
+            renderTicketSettingsList(mockTicketCategories, 'categoryListContainer', 'noCategoriesMessage', 'category', [{key:'category_id', label:'ID'}, {key:'category_name', label:'Name'}, {key:'description', label:'Description'}]);
+            renderTicketSettingsList(mockTicketStatuses, 'statusListContainer', 'noStatusesMessage', 'status', [{key:'status_id', label:'ID'}, {key:'status_name', label:'Name'}, {key:'description', label:'Description'}, {key:'is_closing_status', label:'Closing Status?'}]);
+            renderTicketSettingsList(mockTicketPriorities, 'priorityListContainer', 'noPrioritiesMessage', 'priority', [{key:'priority_id', label:'ID'}, {key:'priority_name', label:'Name'}, {key:'sort_order', label:'Sort Order'}]);
+            renderTicketSettingsList(mockSlaPolicies, 'slaListContainer', 'noSlasMessage', 'sla', [{key:'sla_policy_id', label:'ID'}, {key:'policy_name', label:'Name'}, {key:'response_time_minutes', label:'Response (min)'}, {key:'resolution_time_minutes', label:'Resolution (min)'}]);
+        }
+
+        function renderKbAdminList(searchTerm = '') {
+            const container = document.getElementById('kbAdminListContainer');
+            const noItemsMsg = document.getElementById('noKbAdminMessage');
+            container.innerHTML = '';
+            
+            const filteredArticles = mockKbArticles.filter(article =>
+                article.title.toLowerCase().includes(searchTerm) ||
+                article.content.toLowerCase().includes(searchTerm)
+            );
+
+            if (filteredArticles.length === 0) { noItemsMsg.classList.remove('hidden'); return; }
+            noItemsMsg.classList.add('hidden');
+
+            const table = document.createElement('table');
+            table.className = 'min-w-full divide-y divide-gray-200 text-sm';
+            table.innerHTML = `
+                <thead class="bg-gray-50"><tr>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">ID</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Title</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Author</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Status</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Created</th>
+                    <th class="px-4 py-2 text-left font-medium text-gray-500">Actions</th>
+                </tr></thead><tbody class="bg-white divide-y divide-gray-200"></tbody>`;
+            const tbody = table.querySelector('tbody');
+            filteredArticles.forEach(article => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td class="px-4 py-2">${article.article_id}</td>
+                    <td class="px-4 py-2 max-w-md truncate" title="${article.title}">${article.title}</td>
+                    <td class="px-4 py-2">${mockUsers.find(u=>u.userId === article.author_id)?.full_name || 'Unknown'}</td>
+                    <td class="px-4 py-2"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${article.status === 'Published' ? 'bg-green-100 text-green-800' : (article.status === 'Draft' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800')}">${article.status}</span></td>
+                    <td class="px-4 py-2">${formatDate(article.created_at)}</td>
+                    <td class="px-4 py-2"><button onclick="openAdminModal('kbArticle', ${article.article_id})" class="text-indigo-600 hover:text-indigo-900">Edit</button></td>`;
+            });
+            container.appendChild(table);
+        }
+
+        function renderAuditLogs() {
+            const container = document.getElementById('auditLogContainer');
+            const noItemsMsg = document.getElementById('noAuditLogsMessage');
+            container.innerHTML = '';
+            if (mockAuditLogs.length === 0) { noItemsMsg.classList.remove('hidden'); return; }
+            noItemsMsg.classList.add('hidden');
+
+            const table = document.createElement('table');
+            table.className = 'min-w-full divide-y divide-gray-200 text-sm';
+            table.innerHTML = `
+                <thead class="bg-gray-50 sticky top-0"><tr>
+                    <th class="px-3 py-2 text-left font-medium text-gray-500">Timestamp</th>
+                    <th class="px-3 py-2 text-left font-medium text-gray-500">User</th>
+                    <th class="px-3 py-2 text-left font-medium text-gray-500">Action</th>
+                    <th class="px-3 py-2 text-left font-medium text-gray-500">Target</th>
+                    <th class="px-3 py-2 text-left font-medium text-gray-500">Details</th>
+                </tr></thead><tbody class="bg-white divide-y divide-gray-200"></tbody>`;
+            const tbody = table.querySelector('tbody');
+            mockAuditLogs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(log => { // Sort newest first
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td class="px-3 py-2 whitespace-nowrap">${formatDate(log.timestamp)}</td>
+                    <td class="px-3 py-2">${log.user_id ? (mockUsers.find(u=>u.userId === log.user_id)?.full_name || `User ID ${log.user_id}`) : 'System'}</td>
+                    <td class="px-3 py-2">${log.action}</td>
+                    <td class="px-3 py-2">${log.target_entity || ''} ${log.target_id || ''}</td>
+                    <td class="px-3 py-2 max-w-sm truncate" title="${log.details}">${log.details}</td>`;
+            });
+            container.appendChild(table);
+        }
+
+
+        // --- Admin Modal & Form Handling ---
+        let currentEditType = null;
+        let currentEditId = null;
+
+        function openAdminModal(type, id) {
+            currentEditType = type;
+            currentEditId = id;
+            const isNew = id === null;
+            let item = null;
+            let title = '';
+            adminModalContent.className = 'modal-content'; // Reset to default size
+
+            switch (type) {
+                case 'user':
+                    item = isNew ? { role_id: 1, is_active: 1 } : mockUsers.find(u => u.userId === id);
+                    title = isNew ? 'Add New User' : `Edit User: ${item.full_name}`;
+                    adminModalBody.innerHTML = createUserForm(item);
+                    break;
+                case 'team':
+                    item = isNew ? {} : mockTeams.find(t => t.team_id === id);
+                    title = isNew ? 'Add New Team' : `Edit Team: ${item.team_name}`;
+                    adminModalBody.innerHTML = createTeamForm(item);
+                    adminModalContent.classList.add('modal-lg'); // Wider modal for team members
+                    break;
+                case 'category':
+                    item = isNew ? {} : mockTicketCategories.find(c => c.category_id === id);
+                    title = isNew ? 'Add New Category' : `Edit Category: ${item.category_name}`;
+                    adminModalBody.innerHTML = createCategoryForm(item);
+                    break;
+                case 'status':
+                    item = isNew ? { is_closing_status: 0 } : mockTicketStatuses.find(s => s.status_id === id);
+                    title = isNew ? 'Add New Status' : `Edit Status: ${item.status_name}`;
+                    adminModalBody.innerHTML = createStatusForm(item);
+                    break;
+                case 'priority':
+                    item = isNew ? {} : mockTicketPriorities.find(p => p.priority_id === id);
+                    title = isNew ? 'Add New Priority' : `Edit Priority: ${item.priority_name}`;
+                    adminModalBody.innerHTML = createPriorityForm(item);
+                    break;
+                case 'sla':
+                    item = isNew ? {} : mockSlaPolicies.find(s => s.sla_policy_id === id);
+                    title = isNew ? 'Add New SLA Policy' : `Edit SLA: ${item.policy_name}`;
+                    adminModalBody.innerHTML = createSlaForm(item);
+                    break;
+                case 'kbArticle':
+                    item = isNew ? { status: 'Draft', author_id: mockAdminUser.userId } : mockKbArticles.find(a => a.article_id === id);
+                    title = isNew ? 'Add New KB Article' : `Edit KB Article: ${item.title}`;
+                    adminModalBody.innerHTML = createKbArticleForm(item);
+                    adminModalContent.classList.add('modal-lg');
+                    break;
+                default: return;
+            }
+
+            adminModalTitle.textContent = title;
+            adminModal.style.display = 'flex';
+            document.body.classList.add('overflow-hidden');
+            adminModalSaveButton.onclick = () => handleAdminSave(type, id);
+        }
+
+        function closeAdminModal() {
+            adminModal.style.display = 'none';
+            document.body.classList.remove('overflow-hidden');
+            adminModalBody.innerHTML = ''; // Clear content
+            currentEditType = null;
+            currentEditId = null;
+        }
+        
+        // Form creation functions (simplified examples)
+        function createUserForm(user) {
+            const roleOptions = mockRoles.map(r => `<option value="${r.role_id}" ${user.role_id === r.role_id ? 'selected' : ''}>${r.role_name}</option>`).join('');
+            return `
+                <input type="hidden" id="userId" value="${user.userId || ''}">
+                <div><label class="admin-form-label">Full Name:</label><input type="text" id="userFullName" class="admin-form-input" value="${user.full_name || ''}"></div>
+                <div><label class="admin-form-label">Username:</label><input type="text" id="userUsername" class="admin-form-input" value="${user.username || ''}"></div>
+                <div><label class="admin-form-label">Email:</label><input type="email" id="userEmail" class="admin-form-input" value="${user.email || ''}"></div>
+                <div><label class="admin-form-label">Role:</label><select id="userRole" class="admin-form-select">${roleOptions}</select></div>
+                <div><label class="admin-form-label">Password (leave blank if no change):</label><input type="password" id="userPassword" class="admin-form-input"></div>
+                <div class="flex items-center"><input type="checkbox" id="userIsActive" class="mr-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" ${user.is_active ? 'checked' : ''}><label for="userIsActive" class="admin-form-label !mb-0">Active</label></div>
+            `;
+        }
+        function createTeamForm(team) {
+            // For assigning users to teams, a multi-select or checklist would be better in a real app.
+            // Here, we'll just show assigned user IDs as a simple text field for mock purposes.
+            const agentUsers = mockUsers.filter(u => u.role_id === 2); // Agents
+            let memberCheckboxes = agentUsers.map(agent => `
+                <div class="flex items-center">
+                    <input type="checkbox" id="teamMember_${agent.userId}" value="${agent.userId}" class="mr-2 h-4 w-4 rounded border-gray-300 text-indigo-600" 
+                           ${team.user_ids && team.user_ids.includes(agent.userId) ? 'checked' : ''}>
+                    <label for="teamMember_${agent.userId}" class="text-sm">${agent.full_name} (${agent.email})</label>
+                </div>
+            `).join('');
+
+            return `
+                <input type="hidden" id="teamId" value="${team.team_id || ''}">
+                <div><label class="admin-form-label">Team Name:</label><input type="text" id="teamName" class="admin-form-input" value="${team.team_name || ''}"></div>
+                <div><label class="admin-form-label">Description:</label><textarea id="teamDescription" class="admin-form-textarea" rows="3">${team.description || ''}</textarea></div>
+                <div><label class="admin-form-label mt-2">Team Members (Agents):</label><div class="space-y-1 max-h-48 overflow-y-auto custom-scrollbar border p-2 rounded-md">${memberCheckboxes || '<p class="text-xs text-gray-500">No agents available.</p>'}</div></div>
+            `;
+        }
+        function createCategoryForm(cat) {
+            return `
+                <input type="hidden" id="categoryId" value="${cat.category_id || ''}">
+                <div><label class="admin-form-label">Category Name:</label><input type="text" id="categoryName" class="admin-form-input" value="${cat.category_name || ''}"></div>
+                <div><label class="admin-form-label">Description:</label><textarea id="categoryDescription" class="admin-form-textarea" rows="3">${cat.description || ''}</textarea></div>
+            `;
+        }
+        function createStatusForm(status) {
+             return `
+                <input type="hidden" id="statusId" value="${status.status_id || ''}">
+                <div><label class="admin-form-label">Status Name:</label><input type="text" id="statusName" class="admin-form-input" value="${status.status_name || ''}"></div>
+                <div><label class="admin-form-label">Description:</label><textarea id="statusDescription" class="admin-form-textarea" rows="3">${status.description || ''}</textarea></div>
+                <div class="flex items-center"><input type="checkbox" id="statusIsClosing" class="mr-2 h-4 w-4 rounded border-gray-300 text-indigo-600" ${status.is_closing_status ? 'checked' : ''}><label for="statusIsClosing" class="admin-form-label !mb-0">Is a closing status?</label></div>
+            `;
+        }
+        function createPriorityForm(prio) {
+             return `
+                <input type="hidden" id="priorityId" value="${prio.priority_id || ''}">
+                <div><label class="admin-form-label">Priority Name:</label><input type="text" id="priorityName" class="admin-form-input" value="${prio.priority_name || ''}"></div>
+                <div><label class="admin-form-label">Sort Order:</label><input type="number" id="prioritySortOrder" class="admin-form-input" value="${prio.sort_order || ''}"></div>
+            `;
+        }
+        function createSlaForm(sla) {
+            return `
+                <input type="hidden" id="slaPolicyId" value="${sla.sla_policy_id || ''}">
+                <div><label class="admin-form-label">Policy Name:</label><input type="text" id="slaPolicyName" class="admin-form-input" value="${sla.policy_name || ''}"></div>
+                <div><label class="admin-form-label">Response Time (minutes):</label><input type="number" id="slaResponseTime" class="admin-form-input" value="${sla.response_time_minutes || ''}"></div>
+                <div><label class="admin-form-label">Resolution Time (minutes):</label><input type="number" id="slaResolutionTime" class="admin-form-input" value="${sla.resolution_time_minutes || ''}"></div>
+                <div><label class="admin-form-label">Description:</label><textarea id="slaDescription" class="admin-form-textarea" rows="3">${sla.description || ''}</textarea></div>
+            `;
+        }
+        function createKbArticleForm(article) {
+            const statusOptions = ['Draft', 'Published', 'Archived'].map(s => `<option value="${s}" ${article.status === s ? 'selected' : ''}>${s}</option>`).join('');
+            // In a real app, author would be current admin or selectable if permissions allow.
+            const authorName = mockUsers.find(u => u.userId === article.author_id)?.full_name || 'Current Admin';
+             return `
+                <input type="hidden" id="kbArticleId" value="${article.article_id || ''}">
+                <div><label class="admin-form-label">Title:</label><input type="text" id="kbArticleTitle" class="admin-form-input" value="${article.title || ''}"></div>
+                <div><label class="admin-form-label">Content (HTML or Markdown):</label><textarea id="kbArticleContent" class="admin-form-textarea" rows="8">${article.content || ''}</textarea></div>
+                <div><label class="admin-form-label">Category:</label><select id="kbArticleCategory" class="admin-form-select">
+                    ${mockTicketCategories.map(c => `<option value="${c.category_id}" ${article.kb_category_id === c.category_id ? 'selected' : ''}>${c.category_name}</option>`).join('')}
+                </select></div>
+                 <div><label class="admin-form-label">Status:</label><select id="kbArticleStatus" class="admin-form-select">${statusOptions}</select></div>
+                <div><label class="admin-form-label">Author:</label><input type="text" class="admin-form-input bg-gray-100" value="${authorName}" readonly></div>
+            `;
+        }
+
+
+        function handleAdminSave(type, id) {
+            const isNew = id === null;
+            let item;
+            let newLogEntry = { log_id: mockAuditLogs.length + Date.now(), timestamp: new Date().toISOString(), user_id: mockAdminUser.userId, target_entity: type, details: '' };
+
+            switch (type) {
+                case 'user':
+                    const userId = isNew ? (mockUsers.length > 0 ? Math.max(...mockUsers.map(u => u.userId)) + 1 : 1) : id;
+                    const userData = {
+                        userId: userId,
+                        full_name: document.getElementById('userFullName').value,
+                        username: document.getElementById('userUsername').value,
+                        email: document.getElementById('userEmail').value,
+                        role_id: parseInt(document.getElementById('userRole').value),
+                        is_active: document.getElementById('userIsActive').checked ? 1 : 0,
+                        password_hash: document.getElementById('userPassword').value ? 'new_hashed_pw' : (isNew ? 'default_hashed_pw' : mockUsers.find(u=>u.userId===id).password_hash),
+                        created_at: isNew ? new Date().toISOString() : mockUsers.find(u=>u.userId===id).created_at
+                    };
+                    if (isNew) { mockUsers.push(userData); newLogEntry.action = 'USER_CREATE'; newLogEntry.target_id = userId; newLogEntry.details = `User ${userData.full_name} created.`;}
+                    else { item = mockUsers.find(u => u.userId === id); Object.assign(item, userData); newLogEntry.action = 'USER_UPDATE'; newLogEntry.target_id = id; newLogEntry.details = `User ${item.full_name} updated.`;}
+                    renderUserList();
+                    break;
+                case 'team':
+                    const teamId = isNew ? (mockTeams.length > 0 ? Math.max(...mockTeams.map(t => t.team_id)) + 1 : 1) : id;
+                    const selectedMemberIds = [];
+                    document.querySelectorAll('#adminModalBody input[type="checkbox"][id^="teamMember_"]:checked').forEach(cb => {
+                        selectedMemberIds.push(parseInt(cb.value));
+                    });
+                    const teamData = {
+                        team_id: teamId,
+                        team_name: document.getElementById('teamName').value,
+                        description: document.getElementById('teamDescription').value,
+                        user_ids: selectedMemberIds
+                    };
+                    if (isNew) { mockTeams.push(teamData); newLogEntry.action = 'TEAM_CREATE'; newLogEntry.target_id = teamId; newLogEntry.details = `Team ${teamData.team_name} created.`;}
+                    else { item = mockTeams.find(t => t.team_id === id); Object.assign(item, teamData); newLogEntry.action = 'TEAM_UPDATE'; newLogEntry.target_id = id; newLogEntry.details = `Team ${item.team_name} updated.`;}
+                    renderTeamList();
+                    break;
+                case 'category':
+                    const catId = isNew ? (mockTicketCategories.length > 0 ? Math.max(...mockTicketCategories.map(c => c.category_id)) + 1 : 1) : id;
+                    const catData = { category_id: catId, category_name: document.getElementById('categoryName').value, description: document.getElementById('categoryDescription').value };
+                    if (isNew) { mockTicketCategories.push(catData); newLogEntry.action = 'CATEGORY_CREATE'; newLogEntry.target_id = catId; newLogEntry.details = `Category ${catData.category_name} created.`;}
+                    else { item = mockTicketCategories.find(c => c.category_id === id); Object.assign(item, catData); newLogEntry.action = 'CATEGORY_UPDATE'; newLogEntry.target_id = id; newLogEntry.details = `Category ${item.category_name} updated.`;}
+                    break;
+                case 'status':
+                    const statusId = isNew ? (mockTicketStatuses.length > 0 ? Math.max(...mockTicketStatuses.map(s => s.status_id)) + 1 : 1) : id;
+                    const statusData = { status_id: statusId, status_name: document.getElementById('statusName').value, description: document.getElementById('statusDescription').value, is_closing_status: document.getElementById('statusIsClosing').checked ? 1 : 0 };
+                    if (isNew) { mockTicketStatuses.push(statusData); newLogEntry.action = 'STATUS_CREATE'; newLogEntry.target_id = statusId; newLogEntry.details = `Status ${statusData.status_name} created.`;}
+                    else { item = mockTicketStatuses.find(s => s.status_id === id); Object.assign(item, statusData); newLogEntry.action = 'STATUS_UPDATE'; newLogEntry.target_id = id; newLogEntry.details = `Status ${item.status_name} updated.`;}
+                    break;
+                case 'priority':
+                    const prioId = isNew ? (mockTicketPriorities.length > 0 ? Math.max(...mockTicketPriorities.map(p => p.priority_id)) + 1 : 1) : id;
+                    const prioData = { priority_id: prioId, priority_name: document.getElementById('priorityName').value, sort_order: parseInt(document.getElementById('prioritySortOrder').value) };
+                    if (isNew) { mockTicketPriorities.push(prioData); newLogEntry.action = 'PRIORITY_CREATE'; newLogEntry.target_id = prioId; newLogEntry.details = `Priority ${prioData.priority_name} created.`;}
+                    else { item = mockTicketPriorities.find(p => p.priority_id === id); Object.assign(item, prioData); newLogEntry.action = 'PRIORITY_UPDATE'; newLogEntry.target_id = id; newLogEntry.details = `Priority ${item.priority_name} updated.`;}
+                    break;
+                case 'sla':
+                    const slaId = isNew ? (mockSlaPolicies.length > 0 ? Math.max(...mockSlaPolicies.map(s => s.sla_policy_id)) + 1 : 1) : id;
+                    const slaData = { sla_policy_id: slaId, policy_name: document.getElementById('slaPolicyName').value, response_time_minutes: parseInt(document.getElementById('slaResponseTime').value), resolution_time_minutes: parseInt(document.getElementById('slaResolutionTime').value), description: document.getElementById('slaDescription').value };
+                    if (isNew) { mockSlaPolicies.push(slaData); newLogEntry.action = 'SLA_CREATE'; newLogEntry.target_id = slaId; newLogEntry.details = `SLA ${slaData.policy_name} created.`;}
+                    else { item = mockSlaPolicies.find(s => s.sla_policy_id === id); Object.assign(item, slaData); newLogEntry.action = 'SLA_UPDATE'; newLogEntry.target_id = id; newLogEntry.details = `SLA ${item.policy_name} updated.`;}
+                    break;
+                case 'kbArticle':
+                    const articleId = isNew ? (mockKbArticles.length > 0 ? Math.max(...mockKbArticles.map(a => a.article_id)) + 1 : 1) : id;
+                    const articleData = {
+                        article_id: articleId,
+                        title: document.getElementById('kbArticleTitle').value,
+                        content: document.getElementById('kbArticleContent').value,
+                        kb_category_id: parseInt(document.getElementById('kbArticleCategory').value),
+                        status: document.getElementById('kbArticleStatus').value,
+                        author_id: isNew ? mockAdminUser.userId : mockKbArticles.find(a=>a.article_id === id).author_id, // Keep original author on edit or set current admin for new
+                        created_at: isNew ? new Date().toISOString() : mockKbArticles.find(a=>a.article_id === id).created_at,
+                        updated_at: new Date().toISOString()
+                    };
+                    if (isNew) { mockKbArticles.push(articleData); newLogEntry.action = 'KB_ARTICLE_CREATE'; newLogEntry.target_id = articleId; newLogEntry.details = `KB Article "${articleData.title}" created.`;}
+                    else { item = mockKbArticles.find(a => a.article_id === id); Object.assign(item, articleData); newLogEntry.action = 'KB_ARTICLE_UPDATE'; newLogEntry.target_id = id; newLogEntry.details = `KB Article "${item.title}" updated.`;}
+                    renderKbAdminList(kbSearchAdminInput.value.toLowerCase());
+                    break;
+
+                default: console.warn("Unknown save type:", type); return;
+            }
+            
+            if (type === 'category' || type === 'status' || type === 'priority' || type === 'sla') {
+                renderTicketSettings(); // Re-render all settings lists
+            }
+            
+            mockAuditLogs.push(newLogEntry);
+            renderAuditLogs();
+            updateAdminDashboardStats(); // Update stats after changes
+            alert(`${type.charAt(0).toUpperCase() + type.slice(1)} ${isNew ? 'added' : 'updated'} successfully!`);
+            closeAdminModal();
+        }
+
+
+        // Run initialization
+        document.addEventListener('DOMContentLoaded', initializeAdminDashboard);
+    </script>
+
+</body>
+</html>

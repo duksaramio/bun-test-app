@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QMS Document Repository</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background for the page */
+        }
+        /* Styles for the table headers */
+        .table-header th {
+            background-color: #f9fafb; /* gray-50 */
+            color: #374151; /* gray-700 */
+            font-weight: 600; /* font-semibold */
+            padding: 0.75rem 1rem; /* py-3 px-4 */
+            text-align: left;
+            border-bottom: 2px solid #e5e7eb; /* gray-200 */
+        }
+        /* Styles for table cells */
+        .table-cell {
+            padding: 0.75rem 1rem; /* py-3 px-4 */
+            border-bottom: 1px solid #e5e7eb; /* gray-200 */
+            color: #4b5563; /* gray-600 */
+            font-size: 0.875rem; /* text-sm */
+            white-space: nowrap; /* Prevent text wrapping in cells initially */
+        }
+        /* Styles for status badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px; /* rounded-full */
+            font-size: 0.75rem; /* text-xs */
+            font-weight: 500; /* font-medium */
+            text-transform: capitalize;
+            display: inline-block;
+        }
+        .status-approved { background-color: #d1fae5; color: #065f46; /* green-100, green-800 */ }
+        .status-in-review { background-color: #fef3c7; color: #92400e; /* amber-100, amber-700 */ }
+        .status-draft { background-color: #e0e7ff; color: #3730a3; /* indigo-100, indigo-800 */ }
+        .status-obsolete { background-color: #fee2e2; color: #991b1b; /* red-100, red-800 */ }
+
+        /* Styles for action buttons in the table */
+        .action-button {
+            padding: 0.375rem 0.75rem; /* py-1.5 px-3 */
+            border-radius: 0.375rem; /* rounded-md */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border: 1px solid transparent;
+        }
+        .action-button-view {
+            background-color: #e0e7ff; /* indigo-100 */
+            color: #4338ca; /* indigo-700 */
+            border-color: #c7d2fe; /* indigo-300 */
+        }
+        .action-button-view:hover {
+            background-color: #c7d2fe; /* indigo-300 */
+            color: #3730a3; /* indigo-800 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .action-button-history {
+            background-color: #e5e7eb; /* gray-200 */
+            color: #374151; /* gray-700 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .action-button-history:hover {
+            background-color: #d1d5db; /* gray-300 */
+            color: #1f2937; /* gray-800 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        /* Styles for folder items in the sidebar */
+        .folder-item {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem; /* rounded-md */
+            cursor: pointer;
+            color: #374151; /* gray-700 */
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        .folder-item:hover, .folder-item.active {
+            background-color: #eef2ff; /* indigo-100 */
+            color: #4f46e5; /* indigo-600 */
+        }
+        .folder-item svg {
+            margin-right: 0.75rem; /* Increased margin for icon */
+            flex-shrink: 0; /* Prevent icon from shrinking */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <svg class="h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068M15.75 21A9 9 0 105.932 3.932m0 0A9 9 0 002.25 12c0 .003.001.006.001.009A9.003 9.003 0 0012 21a9.003 9.003 0 009.75-9.001C21.75 11.006 21.75 11.003 21.75 11a9 9 0 00-2.25-7.521" />
+                    </svg>
+                    <h1 class="ml-3 text-2xl font-bold text-gray-900">QMS</h1>
+                </div>
+                <nav class="hidden md:flex space-x-1 lg:space-x-2">
+                    <a href="/qms" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                    <a href="#" class="text-indigo-600 bg-indigo-100 px-3 py-2 rounded-md text-sm font-medium" aria-current="page">Documents</a>
+                    <a href="/qms_training" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Training</a>
+                    <a href="/qms_events" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Quality Events</a>
+                    <a href="/qms_reports" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Reports</a>
+                    <a href="#" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Admin</a>
+                </nav>
+                <div class="flex items-center">
+                    <span class="mr-4 text-sm text-gray-600 hidden sm:inline">Welcome, Alex Johnson!</span>
+                    <button class="p-1 rounded-full text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <span class="sr-only">View notifications</span>
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 00-5.714 0" />
+                        </svg>
+                    </button>
+                    <img class="h-8 w-8 rounded-full ml-3 border border-gray-300" src="https://placehold.co/100x100/E2E8F0/4A5568?text=AJ" alt="User Avatar">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col md:flex-row gap-6">
+
+            <aside class="w-full md:w-1/4 lg:w-1/5 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-xl font-semibold text-gray-800 mb-5">Folders</h2>
+                <nav class="space-y-2">
+                    <a href="#" class="flex items-center folder-item active">
+                        <svg class="h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3.505 4.339A1.5 1.5 0 014.782 3h10.436a1.5 1.5 0 011.277 2.339L13.16 9.17a1.5 1.5 0 01-1.277.83h-3.766a1.5 1.5 0 01-1.277-.83L3.505 4.34zM2 8.67V16.5a1.5 1.5 0 001.5 1.5h13a1.5 1.5 0 001.5-1.5V8.67l-3.339 2.504a3 3 0 01-3.723 0L10 9.333l-1.938 1.84a3 3 0 01-3.723 0L2 8.67z"/></svg>
+                        All Documents
+                    </a>
+                    <a href="#" class="flex items-center folder-item">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A2.75 2.75 0 014.75 2h5.5A2.75 2.75 0 0113 4.75v2.5a.75.75 0 01-1.5 0v-2.5a1.25 1.25 0 00-1.25-1.25h-5.5A1.25 1.25 0 003.5 4.75v10.5A1.25 1.25 0 004.75 16.5h10.5a1.25 1.25 0 001.25-1.25v-5.5a.75.75 0 011.5 0v5.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25V4.75z" clip-rule="evenodd" /></svg>
+                        Standard Operating Procedures
+                    </a>
+                    <a href="#" class="flex items-center folder-item">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A2.75 2.75 0 014.75 2h5.5A2.75 2.75 0 0113 4.75v2.5a.75.75 0 01-1.5 0v-2.5a1.25 1.25 0 00-1.25-1.25h-5.5A1.25 1.25 0 003.5 4.75v10.5A1.25 1.25 0 004.75 16.5h10.5a1.25 1.25 0 001.25-1.25v-5.5a.75.75 0 011.5 0v5.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25V4.75z" clip-rule="evenodd" /></svg>
+                        Work Instructions
+                    </a>
+                    <a href="#" class="flex items-center folder-item">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A2.75 2.75 0 014.75 2h5.5A2.75 2.75 0 0113 4.75v2.5a.75.75 0 01-1.5 0v-2.5a1.25 1.25 0 00-1.25-1.25h-5.5A1.25 1.25 0 003.5 4.75v10.5A1.25 1.25 0 004.75 16.5h10.5a1.25 1.25 0 001.25-1.25v-5.5a.75.75 0 011.5 0v5.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25V4.75z" clip-rule="evenodd" /></svg>
+                        Policies
+                    </a>
+                    <a href="#" class="flex items-center folder-item">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.75A2.75 2.75 0 014.75 2h5.5A2.75 2.75 0 0113 4.75v2.5a.75.75 0 01-1.5 0v-2.5a1.25 1.25 0 00-1.25-1.25h-5.5A1.25 1.25 0 003.5 4.75v10.5A1.25 1.25 0 004.75 16.5h10.5a1.25 1.25 0 001.25-1.25v-5.5a.75.75 0 011.5 0v5.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25V4.75z" clip-rule="evenodd" /></svg>
+                        Forms & Templates
+                    </a>
+                </nav>
+                <button class="mt-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-lg flex items-center justify-center text-sm shadow-md hover:shadow-lg transition-all duration-150 ease-in-out">
+                    <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                    </svg>
+                    Upload Document
+                </button>
+            </aside>
+
+            <main class="w-full md:w-3/4 lg:w-4/5">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                        <h1 class="text-3xl font-bold text-gray-900">Document Library</h1>
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <div class="relative w-full sm:w-64">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <input type="text" placeholder="Search documents..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm">
+                            </div>
+                            <button class="p-2 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-100 hover:text-indigo-600 shadow-sm">
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.572a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-6 flex flex-col sm:flex-row flex-wrap gap-4">
+                        <div>
+                            <label for="docTypeFilter" class="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
+                            <select id="docTypeFilter" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                                <option>All Types</option>
+                                <option>SOP</option>
+                                <option>Work Instruction</option>
+                                <option>Policy</option>
+                                <option>Form</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="statusFilter" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select id="statusFilter" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                                <option>All Statuses</option>
+                                <option>Approved</option>
+                                <option>In Review</option>
+                                <option>Draft</option>
+                                <option>Obsolete</option>
+                            </select>
+                        </div>
+                         <div>
+                            <label for="ownerFilter" class="block text-sm font-medium text-gray-700 mb-1">Owner</label>
+                            <select id="ownerFilter" class="block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                                <option>All Owners</option>
+                                <option>Sarah Miller</option>
+                                <option>John Davis</option>
+                                <option>Admin QMS</option>
+                                <option>HR Department</option>
+                                <option>IT Support</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="table-header">
+                                <tr>
+                                    <th scope="col">Doc ID</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Version</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Effective Date</th>
+                                    <th scope="col">Owner</th>
+                                    <th scope="col" class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="table-cell">SOP-MAN-001</td>
+                                    <td class="table-cell font-medium text-gray-900">Manufacturing Process Overview</td>
+                                    <td class="table-cell">3.0</td>
+                                    <td class="table-cell">
+                                        <span class="status-badge status-approved">Approved</span>
+                                    </td>
+                                    <td class="table-cell">2024-03-15</td>
+                                    <td class="table-cell">Sarah Miller</td>
+                                    <td class="table-cell text-right space-x-2">
+                                        <button class="action-button action-button-view">View</button>
+                                        <button class="action-button action-button-history">History</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="table-cell">WI-LAB-005</td>
+                                    <td class="table-cell font-medium text-gray-900">Sample Handling and Storage</td>
+                                    <td class="table-cell">1.2</td>
+                                    <td class="table-cell">
+                                        <span class="status-badge status-in-review">In Review</span>
+                                    </td>
+                                    <td class="table-cell">-</td>
+                                    <td class="table-cell">John Davis</td>
+                                    <td class="table-cell text-right space-x-2">
+                                        <button class="action-button action-button-view">View</button>
+                                        <button class="action-button action-button-history">History</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="table-cell">POL-QA-002</td>
+                                    <td class="table-cell font-medium text-gray-900">Quality Assurance Policy</td>
+                                    <td class="table-cell">2.0</td>
+                                    <td class="table-cell">
+                                        <span class="status-badge status-approved">Approved</span>
+                                    </td>
+                                    <td class="table-cell">2023-11-01</td>
+                                    <td class="table-cell">Admin QMS</td>
+                                    <td class="table-cell text-right space-x-2">
+                                        <button class="action-button action-button-view">View</button>
+                                        <button class="action-button action-button-history">History</button>
+                                    </td>
+                                </tr>
+                                 <tr>
+                                    <td class="table-cell">FRM-HR-010</td>
+                                    <td class="table-cell font-medium text-gray-900">Employee Onboarding Checklist</td>
+                                    <td class="table-cell">1.0</td>
+                                    <td class="table-cell">
+                                        <span class="status-badge status-draft">Draft</span>
+                                    </td>
+                                    <td class="table-cell">-</td>
+                                    <td class="table-cell">HR Department</td>
+                                    <td class="table-cell text-right space-x-2">
+                                        <button class="action-button action-button-view">View</button>
+                                        <button class="action-button action-button-history">History</button>
+                                    </td>
+                                </tr>
+                                 <tr>
+                                    <td class="table-cell">SOP-IT-003</td>
+                                    <td class="table-cell font-medium text-gray-900">Data Backup and Recovery Procedure</td>
+                                    <td class="table-cell">4.1</td>
+                                    <td class="table-cell">
+                                        <span class="status-badge status-obsolete">Obsolete</span>
+                                    </td>
+                                    <td class="table-cell">2022-05-20</td>
+                                    <td class="table-cell">IT Support</td>
+                                    <td class="table-cell text-right space-x-2">
+                                        <button class="action-button action-button-view">View</button>
+                                        <button class="action-button action-button-history">History</button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                        </table>
+                    </div>
+
+                    <nav class="mt-6 flex items-center justify-between border-t border-gray-200 pt-5" aria-label="Pagination">
+                        <div class="hidden sm:block">
+                            <p class="text-sm text-gray-700">
+                                Showing
+                                <span class="font-medium">1</span>
+                                to
+                                <span class="font-medium">5</span>
+                                of
+                                <span class="font-medium">27</span>
+                                results
+                            </p>
+                        </div>
+                        <div class="flex flex-1 justify-between sm:justify-end space-x-2">
+                            <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm">Previous</a>
+                            <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm">Next</a>
+                        </div>
+                    </nav>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-gray-500">
+            &copy; 2025 Your Quality Management System. All rights reserved.
+            <a href="#" class="ml-4 hover:text-indigo-600">Privacy Policy</a>
+            <a href="#" class="ml-4 hover:text-indigo-600">Terms of Service</a>
+        </div>
+    </footer>
+
+</body>
+</html>

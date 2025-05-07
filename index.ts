@@ -4,6 +4,17 @@ import dashboard from "./dashboard.html";
 import homepage from "./index.html";
 import contact from "./contactme.html";
 import helpDeskDashboard from "./helpdesk_dashboard.html";
+import agentDashboard from "./agent_dashboard.html";
+import adminDashboard from "./admin_dashboard.html";
+
+import qmsDashboard from "./qms_dashboard.html";
+import qmsDocument from "./qms_document.html";
+import qmsTraining from "./qms_training.html";
+import qmsEvents from "./qms_events.html";
+import qmsReports from "./qms_reports.html";
+import qmsAdmin from "./qms_admin.html";
+
+import simplePing from "./simpleping.html";
 
 const db = new Database("mydb.sqlite");
 
@@ -16,8 +27,22 @@ const server = serve({
     "/dashboard": dashboard,
 
     "/contactus": contact,
+    // IT Help Desk
+    "/it": helpDeskDashboard,
+    "/it_agent": agentDashboard,
+    "/it_admin": adminDashboard,
 
-    "/helpdesk": helpDeskDashboard,
+    // Quality Management System
+    "/qms": qmsDashboard,
+    "/qms_document": qmsDocument,
+    "/qms_training": qmsTraining,
+    "/qms_events": qmsEvents,
+    "/qms_reports": qmsReports,
+    "/qms_admin": qmsAdmin,
+
+    // Simple Ping
+
+    "/simpleping": simplePing,
 
     // ** API endpoints ** (Bun v1.2.3+ required)
     "/api/users": {

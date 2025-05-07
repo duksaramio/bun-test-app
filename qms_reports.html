@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standard Reports - QMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/heroicons/1.0.6/solid.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+        }
+        .report-card {
+            background-color: white;
+            border-radius: 0.75rem; /* Rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease-in-out;
+            border: 1px solid #e5e7eb; /* gray-200 */
+        }
+        .report-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .report-title {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            color: #1f2937; /* gray-800 */
+        }
+        .report-description {
+            font-size: 0.875rem; /* text-sm */
+            color: #4b5563; /* gray-600 */
+            margin-top: 0.25rem; /* mt-1 */
+        }
+        .report-module-badge {
+            padding: 0.25rem 0.625rem; /* py-1 px-2.5 */
+            border-radius: 9999px; /* rounded-full */
+            font-size: 0.75rem; /* text-xs */
+            font-weight: 500; /* font-medium */
+            text-transform: uppercase;
+            display: inline-block;
+        }
+        .module-docs { background-color: #e0e7ff; color: #3730a3; } /* indigo */
+        .module-training { background-color: #d1fae5; color: #065f46; } /* green */
+        .module-events { background-color: #fef3c7; color: #92400e; } /* amber */
+        .module-system { background-color: #e5e7eb; color: #374151; } /* gray */
+
+        .action-button {
+            padding: 0.5rem 1rem; /* py-2 px-4 */
+            border-radius: 0.375rem; /* rounded-md */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            transition: all 0.2s ease-in-out;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem; /* space-x-2 */
+        }
+        .action-button-run {
+            background-color: #2563eb; /* blue-600 */
+            color: white;
+        }
+        .action-button-run:hover {
+            background-color: #1d4ed8; /* blue-700 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .action-button-export {
+            background-color: #10b981; /* emerald-500 */
+            color: white;
+        }
+        .action-button-export:hover {
+            background-color: #059669; /* emerald-600 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+         .action-button-schedule {
+            background-color: #6b7280; /* gray-500 */
+            color: white;
+        }
+        .action-button-schedule:hover {
+            background-color: #4b5563; /* gray-600 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .main-card {
+            background-color: white;
+            border-radius: 0.75rem; /* Rounded corners */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <svg class="h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068M15.75 21A9 9 0 105.932 3.932m0 0A9 9 0 002.25 12c0 .003.001.006.001.009A9.003 9.003 0 0012 21a9.003 9.003 0 009.75-9.001C21.75 11.006 21.75 11.003 21.75 11a9 9 0 00-2.25-7.521" />
+                    </svg>
+                    <h1 class="ml-3 text-2xl font-bold text-gray-900">QMS</h1>
+                </div>
+                <nav class="hidden md:flex space-x-1 lg:space-x-2">
+                    <a href="/qms" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                    <a href="/qms_document" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Documents</a>
+                    <a href="/qms_training" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Training</a>
+                    <a href="/qms_events" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Quality Events</a>
+                    <a href="#" class="text-indigo-600 bg-indigo-100 px-3 py-2 rounded-md text-sm font-medium" aria-current="page">Reports</a>
+                    <a href="/qms_admin" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Admin</a>
+                </nav>
+                <div class="flex items-center">
+                    <span class="mr-4 text-sm text-gray-600 hidden sm:inline">Welcome, Alex Johnson!</span>
+                    <button class="p-1 rounded-full text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <span class="sr-only">View notifications</span>
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 00-5.714 0" />
+                        </svg>
+                    </button>
+                    <img class="h-8 w-8 rounded-full ml-3 border border-gray-300" src="https://placehold.co/100x100/E2E8F0/4A5568?text=AJ" alt="User Avatar">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="main-card p-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+                <h1 class="text-3xl font-bold text-gray-900">Standard Reports</h1>
+                <a href="#custom-report-builder" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg flex items-center justify-center text-sm shadow-md hover:shadow-lg transition-all duration-150 ease-in-out">
+                    <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                    </svg>
+                    Custom Report Builder
+                </a>
+            </div>
+
+            <div class="mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-end">
+                <div class="md:col-span-2">
+                    <label for="searchReports" class="block text-sm font-medium text-gray-700 mb-1">Search Reports</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <input type="text" id="searchReports" placeholder="Search by name or module..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm">
+                    </div>
+                </div>
+                <div>
+                    <label for="moduleFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Module</label>
+                    <select id="moduleFilter" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                        <option>All Modules</option>
+                        <option>Document Management</option>
+                        <option>Training Management</option>
+                        <option>Quality Events</option>
+                        <option>System & Users</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="report-card p-6">
+                    <div class="flex justify-between items-start">
+                        <h3 class="report-title">Document Status Summary</h3>
+                        <span class="report-module-badge module-docs">Documents</span>
+                    </div>
+                    <p class="report-description">Provides an overview of documents by their current status (Draft, In Review, Approved, Obsolete).</p>
+                    <div class="mt-6 flex flex-wrap gap-2">
+                        <button class="action-button action-button-run">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            View/Run
+                        </button>
+                        <button class="action-button action-button-export">
+                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Export (PDF)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="report-card p-6">
+                    <div class="flex justify-between items-start">
+                        <h3 class="report-title">Training Compliance Report</h3>
+                         <span class="report-module-badge module-training">Training</span>
+                    </div>
+                    <p class="report-description">Tracks training completion rates by user, department, or specific course. Highlights overdue training.</p>
+                    <div class="mt-6 flex flex-wrap gap-2">
+                        <button class="action-button action-button-run">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            View/Run
+                        </button>
+                        <button class="action-button action-button-export">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Export (Excel)
+                        </button>
+                        <button class="action-button action-button-schedule">
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            Schedule
+                        </button>
+                    </div>
+                </div>
+
+                <div class="report-card p-6">
+                    <div class="flex justify-between items-start">
+                        <h3 class="report-title">Open CAPA Aging Report</h3>
+                        <span class="report-module-badge module-events">Quality Events</span>
+                    </div>
+                    <p class="report-description">Lists all open CAPAs and how long they have been open, categorized by priority or department.</p>
+                     <div class="mt-6 flex flex-wrap gap-2">
+                        <button class="action-button action-button-run">
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            View/Run
+                        </button>
+                        <button class="action-button action-button-export">
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Export (Excel)
+                        </button>
+                    </div>
+                </div>
+                 <div class="report-card p-6">
+                    <div class="flex justify-between items-start">
+                        <h3 class="report-title">User Login Activity</h3>
+                        <span class="report-module-badge module-system">System</span>
+                    </div>
+                    <p class="report-description">Shows a log of user logins, including timestamps and IP addresses, for a selected period.</p>
+                     <div class="mt-6 flex flex-wrap gap-2">
+                        <button class="action-button action-button-run">
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            View/Run
+                        </button>
+                    </div>
+                </div>
+                 <div class="report-card p-6">
+                    <div class="flex justify-between items-start">
+                        <h3 class="report-title">Document Revision History</h3>
+                        <span class="report-module-badge module-docs">Documents</span>
+                    </div>
+                    <p class="report-description">Details the revision history for a specific document or all documents within a period.</p>
+                     <div class="mt-6 flex flex-wrap gap-2">
+                        <button class="action-button action-button-run">
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            View/Run
+                        </button>
+                         <button class="action-button action-button-export">
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Export (PDF)
+                        </button>
+                    </div>
+                </div>
+                 <div class="report-card p-6 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-center hover:border-indigo-500 transition-colors">
+                    <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <h3 class="report-title text-gray-500">More Reports Coming Soon</h3>
+                    <p class="report-description text-gray-400">Check back later for new additions.</p>
+                </div>
+
+            </div>
+            <nav class="mt-10 flex items-center justify-between border-t border-gray-200 pt-5" aria-label="Pagination">
+                <div class="hidden sm:block">
+                    <p class="text-sm text-gray-700">
+                        Showing
+                        <span class="font-medium">1</span>
+                        to
+                        <span class="font-medium">6</span>
+                        of
+                        <span class="font-medium">25</span>
+                        reports
+                    </p>
+                </div>
+                <div class="flex flex-1 justify-between sm:justify-end space-x-2">
+                    <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm">Previous</a>
+                    <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm">Next</a>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-gray-500">
+            &copy; 2025 Your Quality Management System. All rights reserved.
+            <a href="#" class="ml-4 hover:text-indigo-600">Privacy Policy</a>
+            <a href="#" class="ml-4 hover:text-indigo-600">Terms of Service</a>
+        </div>
+    </footer>
+    <script>
+        // Placeholder for any JavaScript needed for this page
+        // e.g., handling filter changes, dynamic loading of reports, etc.
+        console.log("Reports page loaded.");
+    </script>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Console - QMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/heroicons/1.0.6/solid.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+        }
+        .admin-sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem; /* py-3 px-4 */
+            border-radius: 0.5rem; /* rounded-lg */
+            color: #374151; /* gray-700 */
+            font-weight: 500; /* font-medium */
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        .admin-sidebar-link:hover, .admin-sidebar-link.active {
+            background-color: #eef2ff; /* indigo-100 */
+            color: #4f46e5; /* indigo-600 */
+        }
+        .admin-sidebar-link svg {
+            margin-right: 0.75rem; /* mr-3 */
+            height: 1.25rem; /* h-5 */
+            width: 1.25rem; /* w-5 */
+            flex-shrink: 0;
+        }
+        /* Styles for table headers */
+        .table-header th {
+            background-color: #f9fafb; /* gray-50 */
+            color: #374151; /* gray-700 */
+            font-weight: 600; /* font-semibold */
+            padding: 0.75rem 1rem; /* py-3 px-4 */
+            text-align: left;
+            border-bottom: 2px solid #e5e7eb; /* gray-200 */
+        }
+        /* Styles for table cells */
+        .table-cell {
+            padding: 0.75rem 1rem; /* py-3 px-4 */
+            border-bottom: 1px solid #e5e7eb; /* gray-200 */
+            color: #4b5563; /* gray-600 */
+            font-size: 0.875rem; /* text-sm */
+            white-space: nowrap;
+        }
+        /* Styles for status badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px; /* rounded-full */
+            font-size: 0.75rem; /* text-xs */
+            font-weight: 500; /* font-medium */
+            text-transform: capitalize;
+            display: inline-block;
+        }
+        .status-active { background-color: #d1fae5; color: #065f46; /* green-100, green-800 */ }
+        .status-inactive { background-color: #fee2e2; color: #991b1b; /* red-100, red-800 */ }
+        .status-pending { background-color: #fef3c7; color: #92400e; /* amber-100, amber-700 */ }
+
+        /* Styles for action buttons */
+        .action-button {
+            padding: 0.375rem 0.75rem; /* py-1.5 px-3 */
+            border-radius: 0.375rem; /* rounded-md */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            transition: all 0.2s ease-in-out;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem; /* space-x-1 */
+        }
+        .action-button-edit {
+            background-color: #e0e7ff; /* indigo-100 */
+            color: #4338ca; /* indigo-700 */
+            border-color: #c7d2fe; /* indigo-300 */
+        }
+        .action-button-edit:hover {
+            background-color: #c7d2fe; /* indigo-300 */
+            color: #3730a3; /* indigo-800 */
+        }
+        .action-button-deactivate {
+            background-color: #fef2f2; /* red-50 */
+            color: #dc2626; /* red-600 */
+            border-color: #fecaca; /* red-200 */
+        }
+        .action-button-deactivate:hover {
+            background-color: #fee2e2; /* red-100 */
+            color: #b91c1c; /* red-700 */
+        }
+         .action-button-activate {
+            background-color: #f0fdf4; /* green-50 */
+            color: #16a34a; /* green-600 */
+            border-color: #bbf7d0; /* green-200 */
+        }
+        .action-button-activate:hover {
+            background-color: #dcfce7; /* green-100 */
+            color: #15803d; /* green-700 */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <svg class="h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068M15.75 21A9 9 0 105.932 3.932m0 0A9 9 0 002.25 12c0 .003.001.006.001.009A9.003 9.003 0 0012 21a9.003 9.003 0 009.75-9.001C21.75 11.006 21.75 11.003 21.75 11a9 9 0 00-2.25-7.521" />
+                    </svg>
+                    <h1 class="ml-3 text-2xl font-bold text-gray-900">QMS</h1>
+                </div>
+                <nav class="hidden md:flex space-x-1 lg:space-x-2">
+                    <a href="/qms" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                    <a href="/qms_document" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Documents</a>
+                    <a href="/qms_training" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Training</a>
+                    <a href="/qms_events" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Quality Events</a>
+                    <a href="/qms_reports" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium">Reports</a>
+                    <a href="/qms_admin" class="text-indigo-600 bg-indigo-100 px-3 py-2 rounded-md text-sm font-medium" aria-current="page">Admin</a>
+                </nav>
+                <div class="flex items-center">
+                    <span class="mr-4 text-sm text-gray-600 hidden sm:inline">Welcome, Admin User!</span>
+                    <button class="p-1 rounded-full text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <span class="sr-only">View notifications</span>
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 00-5.714 0" />
+                        </svg>
+                    </button>
+                    <img class="h-8 w-8 rounded-full ml-3 border border-gray-300" src="https://placehold.co/100x100/D1D5DB/4B5563?text=AU" alt="Admin Avatar">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col md:flex-row gap-8">
+
+            <aside class="w-full md:w-1/4 lg:w-1/5 bg-white p-6 rounded-lg shadow-lg self-start">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6">Admin Menu</h2>
+                <nav class="space-y-2">
+                    <a href="#user-management" class="admin-sidebar-link active">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" /></svg>
+                        User Management
+                    </a>
+                    <a href="#role-management" class="admin-sidebar-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" /></svg>
+                        Role & Permissions
+                    </a>
+                    <a href="#workflow-config" class="admin-sidebar-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        Workflow Configuration
+                    </a>
+                    <a href="#system-config" class="admin-sidebar-link">
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106A1.532 1.532 0 0111.49 3.17zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" /></svg>
+                        System Settings
+                    </a>
+                    <a href="#master-data" class="admin-sidebar-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 01-2 2H4a2 2 0 01-2-2v-3z" /></svg>
+                        Controlled Lists
+                    </a>
+                    <a href="#audit-trails" class="admin-sidebar-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v5a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0l-4-4a2 2 0 112.828-2.828L8 8.172l1.586-1.586z" clip-rule="evenodd" /></svg>
+                        Audit Trails
+                    </a>
+                     <a href="#announcements" class="admin-sidebar-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a2 2 0 00-2 2v8a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2H3zm12 2a1 1 0 11-2 0 1 1 0 012 0zM5 8a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" /></svg>
+                        Announcements
+                    </a>
+                </nav>
+            </aside>
+
+            <main class="w-full md:w-3/4 lg:w-4/5">
+                <section id="user-management" class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                        <h2 class="text-2xl font-semibold text-gray-800">User Management</h2>
+                        <button class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-5 rounded-lg flex items-center justify-center text-sm shadow-md hover:shadow-lg transition-all duration-150 ease-in-out">
+                            <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                            </svg>
+                            Add New User
+                        </button>
+                    </div>
+
+                    <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-end">
+                        <div>
+                            <label for="searchUsers" class="block text-sm font-medium text-gray-700 mb-1">Search Users</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" /></svg>
+                                </div>
+                                <input type="text" id="searchUsers" placeholder="Name, username, email..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="roleFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Role</label>
+                            <select id="roleFilter" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                                <option>All Roles</option>
+                                <option>Administrator</option>
+                                <option>QA Manager</option>
+                                <option>Document Author</option>
+                                <option>Reviewer</option>
+                                <option>Basic User</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="statusFilterUsers" class="block text-sm font-medium text-gray-700 mb-1">Filter by Status</label>
+                            <select id="statusFilterUsers" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                                <option>All Statuses</option>
+                                <option>Active</option>
+                                <option>Inactive</option>
+                                <option>Pending Activation</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="table-header">
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Role(s)</th>
+                                    <th>Status</th>
+                                    <th>Last Login</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="table-cell font-medium text-gray-900">ajohnson</td>
+                                    <td class="table-cell">Alex Johnson</td>
+                                    <td class="table-cell">alex.johnson@example.com</td>
+                                    <td class="table-cell">QA Manager, Reviewer</td>
+                                    <td class="table-cell"><span class="status-badge status-active">Active</span></td>
+                                    <td class="table-cell">2025-05-05 10:30 AM</td>
+                                    <td class="table-cell text-right space-x-2">
+                                        <button class="action-button action-button-edit"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>Edit</button>
+                                        <button class="action-button action-button-deactivate"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>Deactivate</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="table-cell font-medium text-gray-900">bsmith</td>
+                                    <td class="table-cell">Bob Smith</td>
+                                    <td class="table-cell">bob.smith@example.com</td>
+                                    <td class="table-cell">Document Author</td>
+                                    <td class="table-cell"><span class="status-badge status-active">Active</span></td>
+                                    <td class="table-cell">2025-05-04 02:15 PM</td>
+                                    <td class="table-cell text-right space-x-2">
+                                        <button class="action-button action-button-edit"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>Edit</button>
+                                        <button class="action-button action-button-deactivate"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>Deactivate</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="table-cell font-medium text-gray-900">cwilson</td>
+                                    <td class="table-cell">Carol Wilson</td>
+                                    <td class="table-cell">carol.wilson@example.com</td>
+                                    <td class="table-cell">Basic User</td>
+                                    <td class="table-cell"><span class="status-badge status-inactive">Inactive</span></td>
+                                    <td class="table-cell">2024-12-10 09:00 AM</td>
+                                    <td class="table-cell text-right space-x-2">
+                                        <button class="action-button action-button-edit"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>Edit</button>
+                                        <button class="action-button action-button-activate"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Activate</button>
+                                    </td>
+                                </tr>
+                                 <tr>
+                                    <td class="table-cell font-medium text-gray-900">newuser_01</td>
+                                    <td class="table-cell">David Kim</td>
+                                    <td class="table-cell">david.kim@example.com</td>
+                                    <td class="table-cell">Reviewer</td>
+                                    <td class="table-cell"><span class="status-badge status-pending">Pending Activation</span></td>
+                                    <td class="table-cell">-</td>
+                                    <td class="table-cell text-right space-x-2">
+                                        <button class="action-button action-button-edit"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>Edit</button>
+                                        <button class="action-button action-button-activate"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Activate</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <nav class="mt-6 flex items-center justify-between border-t border-gray-200 pt-5" aria-label="Pagination">
+                        <div class="hidden sm:block">
+                            <p class="text-sm text-gray-700">
+                                Showing
+                                <span class="font-medium">1</span>
+                                to
+                                <span class="font-medium">4</span>
+                                of
+                                <span class="font-medium">128</span>
+                                users
+                            </p>
+                        </div>
+                        <div class="flex flex-1 justify-between sm:justify-end space-x-2">
+                            <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm">Previous</a>
+                            <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm">Next</a>
+                        </div>
+                    </nav>
+                </section>
+
+                </main>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-gray-500">
+            &copy; 2025 Your Quality Management System. All rights reserved.
+            <a href="#" class="ml-4 hover:text-indigo-600">Privacy Policy</a>
+            <a href="#" class="ml-4 hover:text-indigo-600">Terms of Service</a>
+        </div>
+    </footer>
+    <script>
+        // Basic JavaScript to handle sidebar navigation (show/hide sections)
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarLinks = document.querySelectorAll('.admin-sidebar-link');
+            const adminSections = document.querySelectorAll('main section');
+
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+
+                    // Update active link
+                    sidebarLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Show target section, hide others
+                    adminSections.forEach(section => {
+                        if (section.id === targetId) {
+                            section.classList.remove('hidden'); // Assuming other sections are hidden by default or by a 'hidden' class
+                        } else {
+                            section.classList.add('hidden');
+                        }
+                    });
+                    // For a real application, you might load content dynamically or use a router.
+                    // For this static example, we'll just log to console.
+                    console.log("Navigating to: " + targetId);
+                     if (targetId !== 'user-management') {
+                        const targetSection = document.getElementById(targetId);
+                        if(targetSection){
+                           targetSection.innerHTML = `<h2 class="text-2xl font-semibold text-gray-800">${this.innerText.trim()}</h2><p class="mt-4 text-gray-600">Content for ${this.innerText.trim()} will be displayed here. This section is a placeholder.</p>`;
+                           targetSection.classList.remove('hidden');
+                        } else {
+                             // If the section doesn't exist, create a placeholder for it
+                            const placeholderSection = document.createElement('section');
+                            placeholderSection.id = targetId;
+                            placeholderSection.className = 'bg-white p-6 rounded-lg shadow-lg';
+                            placeholderSection.innerHTML = `<h2 class="text-2xl font-semibold text-gray-800">${this.innerText.trim()}</h2><p class="mt-4 text-gray-600">Content for ${this.innerText.trim()} will be displayed here. This section is a placeholder.</p>`;
+                            document.querySelector('main').appendChild(placeholderSection);
+                        }
+                    }
+
+                });
+            });
+
+            // Ensure only the default section is visible initially
+            const defaultSectionId = 'user-management';
+            adminSections.forEach(section => {
+                if (section.id !== defaultSectionId) {
+                    section.classList.add('hidden');
+                } else {
+                    section.classList.remove('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
