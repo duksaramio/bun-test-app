@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Me</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for better visual appeal if needed */
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font as preferred */
+        }
+        /* Adding a fallback font for Inter */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        /* Styling for the message box */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 0.375rem; /* rounded-md */
+            font-size: 0.875rem; /* text-sm */
+            z-index: 50;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .message-box.success {
+            background-color: #d1fae5; /* green-100 */
+            color: #065f46; /* green-700 */
+            border: 1px solid #6ee7b7; /* green-300 */
+        }
+        .message-box.error {
+            background-color: #fee2e2; /* red-100 */
+            color: #991b1b; /* red-700 */
+            border: 1px solid #fca5a5; /* red-300 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Contact Me</h1>
+
+        <form id="contactForm" class="space-y-6">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <input type="text" name="name" id="name" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                       placeholder="John Doe">
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <input type="email" name="email" id="email" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                       placeholder="you@example.com">
+            </div>
+
+            <div>
+                <label for="request" class="block text-sm font-medium text-gray-700 mb-1">Your Request</label>
+                <textarea name="request" id="request" rows="4" required
+                          class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                          placeholder="Please describe your request..."></textarea>
+            </div>
+
+            <div>
+                <button type="submit"
+                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                    Send Request
+                </button>
+            </div>
+        </form>
+        <div id="messageArea" class="mt-4 text-center"></div>
+    </div>
+
+    <script>
+        // Get the form element
+        const contactForm = document.getElementById('contactForm');
+        // Get the message area element
+        const messageArea = document.getElementById('messageArea');
+
+        // Add event listener for form submission
+        contactForm.addEventListener('submit', async function(event) {
+            // Prevent the default form submission behavior
+            event.preventDefault();
+
+            // Clear previous messages
+            clearMessage();
+
+            // Get form data
+            const formData = new FormData(contactForm);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                request: formData.get('request')
+            };
+
+            // API endpoint URL
+            const apiUrl = '/api/users';
+
+            try {
+                // Make the POST request using fetch
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Add any other headers if required, like Authorization tokens
+                    },
+                    body: JSON.stringify(data) // Convert JavaScript object to JSON string
+                });
+
+                // Check if the request was successful
+                if (response.ok) {
+                    const responseData = await response.json(); // Assuming the API returns JSON
+                    console.log('Success:', responseData);
+                    displayMessage('Your request has been sent successfully!', 'success');
+                    contactForm.reset(); // Reset the form fields
+                } else {
+                    // Handle HTTP errors (e.g., 404, 500)
+                    const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred.' })); // Try to parse error, provide fallback
+                    console.error('Error:', response.status, response.statusText, errorData);
+                    displayMessage(`Error: ${response.status} - ${errorData.message || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                // Handle network errors or other issues with the fetch call
+                console.error('Fetch Error:', error);
+                displayMessage('A network error occurred. Please try again.', 'error');
+            }
+        });
+
+        // Function to display messages (success or error)
+        function displayMessage(message, type) {
+            // Remove any existing message box
+            const existingMessageBox = document.querySelector('.message-box');
+            if (existingMessageBox) {
+                existingMessageBox.remove();
+            }
+
+            // Create a new message box
+            const messageBox = document.createElement('div');
+            messageBox.className = `message-box ${type}`; // Apply Tailwind classes for styling
+            messageBox.textContent = message;
+
+            // Append to the body
+            document.body.appendChild(messageBox);
+
+            // Automatically remove the message after 5 seconds
+            setTimeout(() => {
+                messageBox.remove();
+            }, 5000);
+        }
+
+        // Function to clear messages (used before a new submission)
+        function clearMessage() {
+            const existingMessageBox = document.querySelector('.message-box');
+            if (existingMessageBox) {
+                existingMessageBox.remove();
+            }
+        }
+    </script>
+
+</body>
+</html>

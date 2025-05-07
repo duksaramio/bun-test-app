@@ -2,6 +2,7 @@ import { serve } from "bun";
 import { Database } from "bun:sqlite";
 import dashboard from "./dashboard.html";
 import homepage from "./index.html";
+import contact from "./contactme.html";
 
 const db = new Database("mydb.sqlite");
 
@@ -13,6 +14,8 @@ const server = serve({
     // Bundle & route dashboard.html to "/dashboard"
     "/dashboard": dashboard,
 
+    "/contactus": contact,
+
     // ** API endpoints ** (Bun v1.2.3+ required)
     "/api/users": {
       async GET(req) {
@@ -21,15 +24,10 @@ const server = serve({
       },
       async POST(req) {
         // console.log(req);
-        // const { name, email } = await req.json();
-        // console.log(name, email);
-        const name = "test";
-        const email = "test";
-        //INSERT INTO users (name, email) VALUES ('Jane Doe', 'jane.doe@example.com');
+        const { name, email } = await req.json();;
         db.run("INSERT INTO users (name, email) VALUES (?, ?)", [name, email]);
         // const [user] = db.query("INSERT INTO users (name, email) VALUES ($name, $email)");
         return Response.json({ message: "User created" });
-        // return Response.json(user);
       },
     },
     "/api/users/:id": async req => {
