@@ -105,7 +105,7 @@
 
             try {
                 // Make the POST request to the API
-                const response = await fetch('/api/simpleping/', {
+                const response = await fetch('/api/simpleping', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -115,12 +115,14 @@
 
                 // Check if the request was successful
                 if (response.ok) {
+                    console.log('Success');
                     const result = await response.json(); // Assuming the API returns JSON
                     messageArea.textContent = 'Successfully submitted! Server response: ' + (result.message || 'OK');
                     messageArea.classList.add('text-green-600');
                     form.reset(); // Clear the form fields
                 } else {
                     // Handle HTTP errors (e.g., 404, 500)
+                    console.error('Error:', response.status, response.statusText);
                     const errorResult = await response.text(); // Get error text or JSON
                     messageArea.textContent = `Error: ${response.status} ${response.statusText}. ${errorResult || ''}`;
                     messageArea.classList.add('text-red-600');

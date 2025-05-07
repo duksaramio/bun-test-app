@@ -1,5 +1,7 @@
 import { serve } from "bun";
 import { Database } from "bun:sqlite";
+import { betterAuth } from "better-auth";
+
 import dashboard from "./dashboard.html";
 import homepage from "./index.html";
 import contact from "./contactme.html";
@@ -17,6 +19,15 @@ import qmsAdmin from "./qms_admin.html";
 import simplePing from "./simpleping.html";
 
 const db = new Database("mydb.sqlite");
+
+// export const auth = betterAuth({
+//   // The secret used to sign the JWT
+//   database: new Database("mydb.sqlite"),
+//   emailAndPassword: {
+//     // The secret used to sign the JWT
+//     enabled: true,
+//   },
+// });
 
 const server = serve({
   routes: {
@@ -42,7 +53,9 @@ const server = serve({
 
     // Simple Ping
 
-    "/simpleping": simplePing,
+    "/ping": simplePing,
+
+    // "/api/auth/*": auth.handler,
 
     // ** API endpoints ** (Bun v1.2.3+ required)
     "/api/users": {
@@ -55,13 +68,29 @@ const server = serve({
         const { name, email } = await req.json();;
         db.run("INSERT INTO users (name, email) VALUES (?, ?)", [name, email]);
         // const [user] = db.query("INSERT INTO users (name, email) VALUES ($name, $email)");
-        return Response.json({ message: "User created" });
+        return new Response(JSON.stringify({ message: "User created" }), {
+          headers: { "Content-Type": "application/json" },
+        });
       },
     },
     "/api/users/:id": async req => {
       const { id } = req.params;
       const [user] = db.query(`SELECT * FROM users WHERE id = ${id}`);
       return Response.json(user);
+    },
+
+    // Simple Ping APIs
+    "/api/simpleping": {
+      async GET(req) {
+        return Response.json({ message: "User created" });
+      },
+      async POST(req) {
+        const { email, url } = await req.json();;
+        return Response.json({ message: "User created" });
+        // const { url } = await req.json();
+        // const response = await fetch(url);
+        // return Response.json({ status: response.status });
+      },
     },
   },
 

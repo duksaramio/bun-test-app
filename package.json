@@ -4,9 +4,13 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "bun-plugin-tailwind": "^0.0.15"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "better-auth": "v1.2.8-beta.6"
   }
 }
