@@ -57,6 +57,17 @@ const server = serve({
 
     // "/api/auth/*": auth.handler,
 
+    "/api/contact": {
+      async POST(req) {
+        // console.log(req);
+        const { name, email, request } = await req.json();;
+        db.run("INSERT INTO contact_requests (full_name, email_address, request_message) VALUES (?, ?, ?)", [name, email, request]);
+        // const [user] = db.query("INSERT INTO users (name, email) VALUES ($name, $email)");
+        return new Response(JSON.stringify({ message: "contact created" }), {
+          headers: { "Content-Type": "application/json" },
+        });
+      },
+    },
     // ** API endpoints ** (Bun v1.2.3+ required)
     "/api/users": {
       async GET(req) {
